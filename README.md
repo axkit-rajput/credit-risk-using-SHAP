@@ -40,6 +40,85 @@ Lending institutions need fast, reliable, and **transparent** decisions on loan 
 
 ---
 
+## 🏗️ Architecture
+
+### Training Pipeline
+
+```mermaid
+flowchart LR
+    A["📄 credit_risk_dataset.csv"] --> B["🔍 EDA &\nData Validation"]
+    B --> C["⚙️ Preprocessing\n(ColumnTransformer)"]
+    C --> D["🤖 Model Training\nLR vs XGBoost"]
+    D --> E["🎯 Threshold\nOptimization"]
+    E --> F["📐 Probability\nCalibration"]
+    F --> G["🧠 SHAP\nExplainability"]
+    G --> H["💾 credit_risk_model.pkl\n+ best_threshold.pkl"]
+
+    style A fill:#1a2530,stroke:#c7a468,color:#e8ecee
+    style H fill:#1a2530,stroke:#5f9270,color:#e8ecee
+```
+
+### Serving Pipeline
+
+```mermaid
+flowchart LR
+    U["🌐 Browser\n(Credit Ledger UI)"] -->|"JSON POST\n/predict"| API["⚡ FastAPI\nBackend"]
+    API -->|"Load on startup"| M["💾 Model .pkl\n+ Threshold .pkl"]
+    M -->|"predict_proba()"| API
+    API -->|"JSON Response\nprobability + verdict"| U
+
+    subgraph Render ["☁️ Render Deployment"]
+        API
+        M
+        S["📁 Static Files\n(HTML / CSS / JS)"]
+    end
+
+    API -->|"mount '/'"| S
+    S -->|"Serves UI"| U
+
+    style U fill:#1a2530,stroke:#c7a468,color:#e8ecee
+    style Render fill:#0e141b,stroke:#2a3743,color:#8b98a5
+```
+
+### Request Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  BROWSER                                                            │
+│                                                                     │
+│  ┌──────────────┐    ┌──────────────┐    ┌───────────────────────┐  │
+│  │  index.html   │───▶│  script.js   │───▶│  POST /predict        │  │
+│  │  (Form UI)    │    │  (Validate & │    │  { person_age: 30,    │  │
+│  │              │    │   Submit)    │    │    loan_amnt: 100000, │  │
+│  └──────────────┘    └──────────────┘    │    ...               }│  │
+│                                          └──────────┬────────────┘  │
+│         ▲                                           │               │
+│         │              HTTP Response                │  HTTP Request  │
+│         │                                           ▼               │
+│  ┌──────┴───────────────────────────────────────────────────────┐   │
+│  │  Animated Gauge · Verdict Stamp · Ledger Facts              │   │
+│  │  { probability: 4.2%, threshold: 35%, result: "Low Risk" }  │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │ ▲
+                                  ▼ │
+┌─────────────────────────────────────────────────────────────────────┐
+│  FASTAPI SERVER (Uvicorn)                                           │
+│                                                                     │
+│  ┌────────────┐    ┌──────────────────┐    ┌─────────────────────┐ │
+│  │  Pydantic   │───▶│  XGBoost Model   │───▶│  Threshold Check    │ │
+│  │  Validation │    │  predict_proba() │    │  prob ≥ threshold?  │ │
+│  └────────────┘    └──────────────────┘    └─────────────────────┘ │
+│                            ▲                                        │
+│                    ┌───────┴────────┐                               │
+│                    │  Joblib .pkl   │                               │
+│                    │  (loaded once) │                               │
+│                    └────────────────┘                               │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 🛠️ Tech Stack
 
 ```
