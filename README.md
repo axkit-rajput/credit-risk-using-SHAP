@@ -1,164 +1,150 @@
-# Credit Ledger — Explainable Credit Risk Assessment using SHAP
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/XGBoost-3.4-FF6600?logo=xgboost&logoColor=white" alt="XGBoost" />
+  <img src="https://img.shields.io/badge/SHAP-Explainability-blueviolet" alt="SHAP" />
+  <img src="https://img.shields.io/badge/Deployed_on-Render-46E3B7?logo=render&logoColor=white" alt="Render" />
+  <img src="https://img.shields.io/github/license/axkit-rajput/credit-risk-using-SHAP" alt="License" />
+</p>
 
-An end-to-end machine learning project that predicts **loan default risk** and explains every prediction using **SHAP (SHapley Additive exPlanations)**. The trained model is served through a **FastAPI** backend with a polished browser-based underwriting interface.
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Demo](#demo)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [ML Pipeline](#ml-pipeline)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running Locally](#running-locally)
-- [API Reference](#api-reference)
-- [Deployment](#deployment)
-- [License](#license)
+<h1 align="center">Credit Ledger</h1>
+<p align="center">
+  <strong>Explainable Credit Risk Assessment using SHAP</strong><br/>
+  <em>An end-to-end ML pipeline that predicts loan default risk — and explains why.</em>
+</p>
 
 ---
 
-## Overview
+## 🎯 About
 
-Banks and lending institutions need to decide quickly whether a loan applicant is likely to default. This project builds a **binary classifier** on consumer-loan data, tunes it rigorously, and then goes a step further — using **SHAP** to make every prediction **transparent and explainable**.
+Lending institutions need fast, reliable, and **transparent** decisions on loan applications. This project delivers all three:
 
-The final model is wrapped in a lightweight **FastAPI** service with a static frontend ("Credit Ledger") so anyone can fill in applicant details and receive a real-time risk assessment with a visual gauge and verdict stamp.
+1. **Trains & tunes** an XGBoost classifier on consumer-loan data  
+2. **Explains** every prediction with SHAP (SHapley Additive exPlanations)  
+3. **Serves** the model through a FastAPI backend with a sleek browser-based underwriting interface — **Credit Ledger**
 
----
-
-## Demo
-
-| Input Form | Risk Verdict |
-|:---:|:---:|
-| Fill in applicant & loan details across three sections | An animated gauge and stamp show the default probability and decision |
-
-> The app is deployable on [Render](https://render.com) (config included) or any platform that supports Python web services.
+> **Why explainability?** — Regulators and stakeholders increasingly demand to know *why* a model flags an applicant. SHAP provides mathematically grounded, per-feature explanations for every single prediction.
 
 ---
 
-## Features
+## ✨ Key Features
 
-- **Full ML notebook** — from EDA through model comparison, threshold optimization, probability calibration, to SHAP interpretation
-- **XGBoost + Logistic Regression** comparison with stratified cross-validation
-- **Class imbalance handling** via scale weights
-- **Hyperparameter tuning** with `RandomizedSearchCV`
-- **Optimal classification threshold** selection (not just 0.5)
-- **Probability calibration** to ensure predicted probabilities are well-calibrated
-- **SHAP explainability** — global feature importance + local per-applicant breakdowns
-- **False positive / false negative analysis**
-- **FastAPI REST API** with Pydantic validation
-- **Responsive dark-themed frontend** with animated risk gauge and verdict stamp
-- **One-click deploy** to Render via `render.yaml`
+| Category | Highlights |
+|:--|:--|
+| **Machine Learning** | XGBoost vs Logistic Regression comparison · Stratified 5-fold CV · `RandomizedSearchCV` hyperparameter tuning · Class imbalance handling via scale weights |
+| **Threshold & Calibration** | Optimal classification threshold search (not just 0.5) · Probability calibration with `CalibratedClassifierCV` |
+| **Explainability** | SHAP global feature importance · SHAP local waterfall plots · False positive / false negative error analysis |
+| **Production API** | FastAPI REST endpoint with Pydantic schema validation · Model served via `joblib` |
+| **Frontend** | Responsive dark-themed UI · Animated risk gauge · Verdict stamp ("LOW RISK" / "HIGH RISK") · Auto-calculated loan-to-income ratio |
+| **Deployment** | One-click deploy to Render via `render.yaml` |
 
 ---
 
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| ML / Data Science | Python, Pandas, NumPy, Scikit-learn, XGBoost, SHAP |
-| Backend | FastAPI, Uvicorn, Pydantic, Joblib |
-| Frontend | HTML5, CSS3 (custom design tokens), Vanilla JS |
-| Deployment | Render (render.yaml) |
-| Runtime | Python 3.11.9 |
-
----
-
-## Project Structure
+## 🛠️ Tech Stack
 
 ```
-Credit-Risk-Assesment-using-SHAP-main/
+ML & Data       →  Python · Pandas · NumPy · Scikit-learn · XGBoost · SHAP
+Backend         →  FastAPI · Uvicorn · Pydantic · Joblib
+Frontend        →  HTML5 · CSS3 (custom design tokens) · Vanilla JavaScript
+Deployment      →  Render (render.yaml)
+Runtime         →  Python 3.11.9
+```
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── Credit_Risk.ipynb            # Full ML pipeline notebook (EDA → SHAP)
+├── credit_risk_dataset.csv      # Raw loan applicant dataset
 │
-├── Credit_Risk.ipynb          # Full ML pipeline notebook (EDA → SHAP)
-├── credit_risk_dataset.csv    # Raw dataset
+├── credit_risk_model.pkl        # Serialized XGBoost pipeline
+├── best_threshold.pkl           # Optimized classification threshold
 │
-├── credit_risk_model.pkl      # Trained XGBoost pipeline (serialized)
-├── best_threshold.pkl         # Optimal classification threshold
-│
-├── main.py                    # FastAPI application
-├── requirements.txt           # Python dependencies
-├── runtime.txt                # Python version for deployment
-├── render.yaml                # Render deployment configuration
+├── main.py                      # FastAPI application entry point
+├── requirements.txt             # Pinned Python dependencies
+├── runtime.txt                  # Python version specification
+├── render.yaml                  # Render deployment manifest
 │
 ├── static/
-│   ├── index.html             # Credit Ledger UI
-│   ├── style.css              # Dark-themed responsive styles
-│   └── script.js              # Form handling, gauge animation, API calls
+│   ├── index.html               # Credit Ledger — underwriting UI
+│   ├── style.css                # Dark-themed responsive stylesheet
+│   └── script.js                # Form logic, gauge animation, API client
 │
-└── .gitignore
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## ML Pipeline
+## 📊 ML Pipeline
 
-The Jupyter notebook (`Credit_Risk.ipynb`) walks through **16 clearly documented steps**:
+The notebook (`Credit_Risk.ipynb`) is structured into **16 documented stages**:
 
-| # | Step | Description |
-|---|---|---|
-| 1 | **Load Data** | Import the credit risk dataset |
-| 2 | **EDA** | Distributions, target balance, missing values, outliers, correlations |
-| 3 | **Data Validation** | Remove duplicates, impossible ages (>100), excessive employment length (>60) |
-| 4 | **Train-Test Split** | Stratified split preserving class ratios |
-| 5 | **Class Imbalance** | Compute scale weights for the minority class |
-| 6 | **Preprocessing Pipelines** | Separate `ColumnTransformer` pipelines for Logistic Regression (with scaling) and XGBoost (without scaling) |
-| 7 | **Evaluation Helper** | Unified function for accuracy, precision, recall, F1, confusion matrix |
-| 8 | **Cross-Validation** | 5-fold stratified CV on both models |
-| 9 | **Baseline Model** | Logistic Regression as benchmark |
-| 10 | **Hyperparameter Tuning** | `RandomizedSearchCV` on XGBoost |
-| 11 | **Model Comparison** | Side-by-side metric comparison |
-| 12 | **Threshold Optimization** | Sweep thresholds to balance FP/FN for the business case |
-| 13 | **Probability Calibration** | Calibration curves + `CalibratedClassifierCV` |
-| 14 | **SHAP Interpretation** | Global summary plot + local waterfall for individual applicants |
-| 15 | **Error Analysis** | Inspect false positives and false negatives |
-| 16 | **Save Model** | Export model pipeline + threshold as `.pkl` files |
+| Stage | What It Does |
+|:------|:-------------|
+| **1. Load Data** | Import the credit risk dataset into a DataFrame |
+| **2. EDA** | Distributions, target balance, missing values, outlier detection, correlation heatmap |
+| **3. Data Validation** | Remove duplicates, filter impossible ages (>100) and employment lengths (>60 yrs) |
+| **4. Train-Test Split** | Stratified split preserving class ratios |
+| **5. Class Imbalance** | Compute scale weights to up-weight the minority (default) class |
+| **6. Preprocessing** | Separate `ColumnTransformer` pipelines — scaling for LR, no scaling for XGBoost |
+| **7. Evaluation Helper** | Unified function: accuracy, precision, recall, F1, confusion matrix |
+| **8. Cross-Validation** | 5-fold stratified CV on both model pipelines |
+| **9. Baseline Model** | Logistic Regression as the benchmark |
+| **10. Hyperparameter Tuning** | `RandomizedSearchCV` over XGBoost parameter space |
+| **11. Model Comparison** | Side-by-side metric table of both models |
+| **12. Threshold Optimization** | Sweep thresholds to balance false positives vs false negatives |
+| **13. Probability Calibration** | Calibration curves + `CalibratedClassifierCV` |
+| **14. SHAP Interpretation** | Global summary plot + local waterfall for individual applicants |
+| **15. Error Analysis** | Deep-dive into false positives and false negatives |
+| **16. Save Model** | Export model pipeline + optimal threshold as `.pkl` artifacts |
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - **Python 3.11+**
-- `pip` package manager
+- **pip** package manager
+- **Git**
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/Credit-Risk-Assesment-using-SHAP.git
-cd Credit-Risk-Assesment-using-SHAP
+git clone https://github.com/axkit-rajput/credit-risk-using-SHAP.git
+cd credit-risk-using-SHAP
 
-# Create a virtual environment (recommended)
+# Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate        # Linux/macOS
+source venv/bin/activate        # Linux / macOS
 venv\Scripts\activate           # Windows
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### Running Locally
+### Run Locally
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. The Credit Ledger UI will load automatically.
+Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)** — the Credit Ledger UI loads automatically.
 
 ---
 
-## API Reference
+## 📡 API Reference
 
 ### `POST /predict`
 
-Predict the default risk for a loan application.
+Submit a loan application and receive a risk assessment.
 
-**Request body** (JSON):
+<details>
+<summary><strong>Request Body</strong> (click to expand)</summary>
 
 ```json
 {
@@ -176,7 +162,10 @@ Predict the default risk for a loan application.
 }
 ```
 
-**Response** (JSON):
+</details>
+
+<details>
+<summary><strong>Response</strong> (click to expand)</summary>
 
 ```json
 {
@@ -187,25 +176,33 @@ Predict the default risk for a loan application.
 }
 ```
 
+</details>
+
+#### Input Fields
+
 | Field | Type | Description |
-|---|---|---|
+|:------|:-----|:------------|
 | `person_age` | `int` | Applicant's age (18–100) |
 | `person_income` | `float` | Annual income |
-| `person_home_ownership` | `str` | `RENT`, `MORTGAGE`, `OWN`, or `OTHER` |
-| `person_emp_length` | `float` | Employment length in years |
-| `loan_intent` | `str` | `PERSONAL`, `EDUCATION`, `MEDICAL`, `VENTURE`, `HOMEIMPROVEMENT`, `DEBTCONSOLIDATION` |
-| `loan_grade` | `str` | Loan grade (`A` through `G`) |
+| `person_home_ownership` | `str` | `RENT` · `MORTGAGE` · `OWN` · `OTHER` |
+| `person_emp_length` | `float` | Employment length (years) |
+| `loan_intent` | `str` | `PERSONAL` · `EDUCATION` · `MEDICAL` · `VENTURE` · `HOMEIMPROVEMENT` · `DEBTCONSOLIDATION` |
+| `loan_grade` | `str` | Grade `A` through `G` |
 | `loan_amnt` | `float` | Requested loan amount |
 | `loan_int_rate` | `float` | Interest rate (%) |
-| `loan_percent_income` | `float` | Loan amount as a ratio of annual income (0–1) |
-| `cb_person_default_on_file` | `str` | Prior default on credit bureau file (`Y` / `N`) |
-| `cb_person_cred_hist_length` | `int` | Credit history length in years |
+| `loan_percent_income` | `float` | Loan-to-income ratio (0–1) |
+| `cb_person_default_on_file` | `str` | Prior default on file — `Y` / `N` |
+| `cb_person_cred_hist_length` | `int` | Credit history length (years) |
 
 ---
 
-## Deployment
+## ☁️ Deployment
 
-The project includes a [`render.yaml`](render.yaml) for one-click deployment to **Render**:
+A [`render.yaml`](render.yaml) manifest is included for one-click deployment to **[Render](https://render.com)**:
+
+1. Push the repository to GitHub  
+2. Connect your Render account to the repo  
+3. Render auto-detects the manifest and deploys the service  
 
 ```yaml
 services:
@@ -218,12 +215,12 @@ services:
     autoDeploy: true
 ```
 
-1. Push the repo to GitHub
-2. Connect your Render account to the repo
-3. Render will auto-detect the `render.yaml` and deploy
+---
+
+## 📄 License
+
+This project is licensed under the **ISC License** — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## License
-
-This project is open-source. Feel free to use, modify, and distribute.
+<p align="center">Built with ❤️ by <a href="https://github.com/axkit-rajput">Ankit Rajput</a></p>
